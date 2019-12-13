@@ -1,6 +1,7 @@
 package com.webapp.bookMyBus.repository;
 
 import com.webapp.bookMyBus.dto.BusDTO;
+import com.webapp.bookMyBus.entity.Stop;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -23,17 +24,26 @@ public class BusDAOImpl implements BusDAO {
     }
 
     @Override
+    public List<Stop> listCities() {
+        Session currentSession = entityManager.unwrap(Session.class);
+        Query query = currentSession.createQuery("select name from Stop");
+        List<Stop> stops = query.getResultList();
+        return stops;
+    }
+
+    @Override
     public List<BusDTO> findBuses(String source, String destination, Date date) {
         Session currentSession = entityManager.unwrap(Session.class);
+        date.setTime(date.getTime() - 19800000);
 
         Query query = currentSession.createSQLQuery(
                 "SELECT" +
                         " j.start_date, j.end_date, j.available_seats," +
                         " b.total_seats, b.rating," +
-                        " tc.name," +
+                        " tc.name as tcname," +
                         " r.distance," +
-                        " ss.name," +
-                        " sd.name," +
+                        " ss.name as sname," +
+                        " sd.name as dname" +
                 " FROM journey j" +
                 " INNER JOIN bus b" +
                     " ON j.bus_id = b.bid" +
@@ -47,11 +57,12 @@ public class BusDAOImpl implements BusDAO {
                     " ON sd.sid = r.destination_stopid" +
                 " WHERE ss.name = :source" +
                 " AND sd.name = :destination" +
-                " AND j.start_date := date");
+                " AND j.start_date = :date");
 
         query.setParameter("source", source);
         query.setParameter("destination", destination);
         query.setParameter("date", date);
+
 
         List busResultsList = query.getResultList();
         List <BusDTO> busResults = new ArrayList<>(); ;
@@ -60,6 +71,8 @@ public class BusDAOImpl implements BusDAO {
         long id=1;
         while(it.hasNext()) {
             Object obj[] = (Object[]) it.next();
+            ((Date)obj[0]).setTime(((Date)obj[0]).getTime() + 19800000);
+            ((Date)obj[1]).setTime(((Date)obj[1]).getTime() + 19800000);
             BusDTO singleResult = new BusDTO(id, (String)obj[7], (String)obj[8], (String)obj[6], (int)obj[2], (int)obj[3], (String)obj[4], (String)obj[5], (Date)obj[0], (Date)obj[1]);
             id++;
             busResults.add(singleResult);

@@ -1,6 +1,7 @@
 package com.webapp.bookMyBus.service;
 
 import com.webapp.bookMyBus.dto.BusDTO;
+import com.webapp.bookMyBus.entity.Stop;
 import com.webapp.bookMyBus.repository.BusDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,5 +22,10 @@ public class BusServiceImpl implements BusService{
     @Override
     public List<BusDTO> findBuses(String source, String destination, Date date) {
         return busDAO.findBuses(source, destination, date);
+    }
+
+    @Override
+    public List<Stop> listCities() {
+        return busDAO.listCities();
     }
 }

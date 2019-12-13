@@ -23,7 +23,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public User verifyUser(@RequestParam String username, @RequestParam String password) {
+    public User verifyUser(@RequestBody String username, @RequestBody String password) {
         User user = userService.findByUserCreds(username, password);
         if (user == null) {
             throw new RuntimeException("User not found - " + username);
@@ -31,7 +31,7 @@ public class UserController {
         return user;
     }
 
-    @GetMapping("logout")
+    @GetMapping("/logout")
     public void logoutUser() {
 
     }
